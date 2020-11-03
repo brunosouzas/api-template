@@ -1,0 +1,13 @@
+{
+	"total": 202,
+	"customers":[
+		{
+			"id": 1,
+			"name": "Joseph Biden"
+		},
+		{
+			"id": 2,
+			"name": "Maria Biden"
+		}
+	]
+}

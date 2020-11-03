@@ -1,0 +1,63 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/0df363d2-b15f-4e58-80d2-f763012c10b7/ # 
+title: template-api
+#baseUri: https://api.domain.com/{version}
+version: v1
+protocols: [ HTTPS ] 
+mediaType: application/json
+
+# use documentation to help users understand the API usage better.
+documentation:
+  - !include documentation/doc.raml
+
+uses:
+  # you can use the resource library or the specific resource type bellow
+  cdm: exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/library-resource-type/1.0.23/resource-type.raml
+  
+  # use the security library ( either basic authentication to SAPI/PAPI or token to EAPI or another(OAUTH))
+  security: exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/library-security/1.0.1/security.raml
+
+# you can use the specific resource type or the library above
+resourceTypes:
+  create: !include exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/library-resource-type/1.0.23/resourceType/create-only-item.raml
+
+types:
+  customer: !include dataType/customer.raml
+  
+  # you need use the error type to your project
+  error-log: !include exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/library-error/1.0.8/types/error-log.raml
+  error-eapi: !include exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/library-error/1.0.8/types/error-eapi.raml
+
+# you must use the pageable file like bellow, because the resource-type (read-only-paged-collection) use the trait with this name.
+traits:
+  paginated: !include exchange_modules/13ecf258-fb9f-4dee-b1d3-4626b6c69bc0/trait-pageable/1.0.0/pageable.raml
+
+/customers:
+  securedBy: security.token
+  type:
+    create:
+      displayName: create a customer
+      errorType: error-log
+      inputType: customer
+      inputExample: !include examples/customer.json
+      outputType: customer
+      outputExample: !include examples/customer.json
+
+  /{id}:
+    securedBy: security.basicAuthentication
+    type:
+      cdm.read-only-item:
+        displayName: customer by Id
+        errorType: error-eapi
+        itemType: customer
+        itemExample: !include examples/customer.json
+
+  /pagination:
+    type:
+      cdm.read-only-paged-collection:
+        displayName: paged collection from customer
+        errorType: error-log
+        collectionName: customers
+        collectionType: customer
+        collectionExample: !include examples/customers-pagination.json
+        maxItems: 100
